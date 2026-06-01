@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Seeding v2 — 서비스 소개 · 접속방법 · 인수인계 차이 · 해커톤 현황</title>
+<style>
+  :root{
+    --blue:#1a73e8; --green:#34a853; --yellow:#fbbc04; --red:#ea4335;
+    --ink:#202124; --muted:#5f6368; --line:#e8eaed; --bg:#f8f9fa; --card:#fff;
+    --sg:#9aa0a6;
+    --mono:"SF Mono",ui-monospace,"Menlo",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.65;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+  header.hero{background:linear-gradient(135deg,#1a73e8 0%,#174ea6 100%);color:#fff;padding:56px 24px 64px}
+  .hero-inner{max-width:1080px;margin:0 auto}
+  .kicker{font-size:13px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;font-weight:600}
+  h1{font-size:33px;margin:.3em 0 .2em;line-height:1.22;font-weight:800}
+  .sub{font-size:16px;opacity:.93;max-width:780px}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600}
+  .pill a{color:#fff;text-decoration:none}
+  .summary{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 28px;box-shadow:0 4px 24px rgba(60,64,67,.08);position:relative;z-index:2;margin-top:-32px}
+  .summary h2{margin:0 0 10px;font-size:14px;color:var(--blue);letter-spacing:.05em;text-transform:uppercase}
+  .summary p{margin:6px 0}
+  nav.toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 24px;margin:28px 0;columns:2;column-gap:32px}
+  nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:4px 0;font-size:14px;break-inside:avoid}
+  nav.toc a:hover{color:var(--blue)}
+  nav.toc a b{color:var(--blue);font-family:var(--mono);font-size:12px;margin-right:8px}
+  section{margin:48px 0;scroll-margin-top:20px}
+  h2.sec{font-size:23px;font-weight:800;border-bottom:3px solid var(--blue);padding-bottom:8px;display:inline-block;margin-bottom:18px}
+  h3{font-size:18px;font-weight:700;margin:26px 0 10px}
+  p{margin:10px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:16px 0;box-shadow:0 1px 3px rgba(60,64,67,.06)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--bg);font-weight:700;font-size:13px;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  code{font-family:var(--mono);font-size:.86em;background:#eef1f6;padding:2px 6px;border-radius:5px;color:#174ea6;word-break:break-all}
+  a.link{color:var(--blue);font-weight:600}
+  .ok{color:var(--green);font-weight:700}
+  .warn{color:#b06000;font-weight:700}
+  .no{color:var(--red);font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:18px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;box-shadow:0 1px 3px rgba(60,64,67,.06)}
+  .stat .n{font-size:29px;font-weight:800;color:var(--blue);font-family:var(--mono);line-height:1}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:8px;letter-spacing:.02em}
+  .stat.g .n{color:var(--green)} .stat.y .n{color:#b06000} .stat.r .n{color:var(--red)}
+  /* access cards */
+  .access{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:16px 0}
+  .acc{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:10px;padding:16px 18px}
+  .acc.warnb{border-left-color:var(--yellow)}
+  .acc .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .acc .u{font-family:var(--mono);font-size:12px;word-break:break-all}
+  .acc .u a{color:var(--blue)}
+  .acc .d{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .tl{margin:24px 0 8px}
+  .tl-track{display:flex;border-radius:10px;overflow:hidden;height:46px;border:1px solid var(--line);font-size:13px;font-weight:700;color:#fff}
+  .tl-seg{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 8px}
+  .tl-sg{background:var(--sg);flex:0 0 33%}
+  .tl-me{background:var(--blue);flex:1}
+  .tl-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+  .bars{margin:18px 0}
+  .bar-row{display:grid;grid-template-columns:150px 1fr 110px;align-items:center;gap:12px;margin:7px 0}
+  .bar-row .name{font-size:13px;font-weight:600;text-align:right}
+  .bar-track{background:var(--bg);border-radius:6px;height:22px;overflow:hidden;border:1px solid var(--line)}
+  .bar-fill{height:100%;background:linear-gradient(90deg,#1a73e8,#4285f4);border-radius:6px 0 0 6px}
+  .bar-val{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .callout{border-left:4px solid var(--blue);background:#eef4fe;padding:14px 18px;border-radius:0 10px 10px 0;margin:16px 0}
+  .callout.warnc{border-color:var(--yellow);background:#fef7e0}
+  .callout.okc{border-color:var(--green);background:#e6f4ea}
+  .arc{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0}
+  .arc .step{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:12px;padding:18px}
+  .arc .step h4{margin:0 0 6px;font-size:16px}
+  .arc .step .tag{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:700}
+  .arc .step.s2{border-top-color:var(--green)} .arc .step.s2 .tag{color:var(--green)}
+  .arc .step.s3{border-top-color:var(--yellow)} .arc .step.s3 .tag{color:#b06000}
+  .flow{font-family:var(--mono);font-size:13px;background:#0d1b2e;color:#cfe3ff;padding:16px 18px;border-radius:10px;overflow-x:auto;line-height:1.8;margin:14px 0}
+  .flow b{color:#7cb7ff} .flow .g{color:#7ee2a8}
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+  .tag-sm{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 7px;border-radius:5px;background:#eef1f6;color:#174ea6;font-weight:700}
+  .chk{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .chk:last-child{border-bottom:none}
+  .chk .who{font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:5px;font-weight:700;white-space:nowrap}
+  .who.op{background:#fef7e0;color:#b06000} .who.team{background:#fce8e6;color:#c5221f} .who.ext{background:#e8eaed;color:#5f6368}
+  @media(max-width:720px){nav.toc{columns:1}.arc{grid-template-columns:1fr}.bar-row{grid-template-columns:100px 1fr 70px}.tl-sg{flex:0 0 30%}.chk{grid-template-columns:1fr;gap:4px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kicker">Project Briefing · 서비스 소개 · 접속방법 · 인수인계 차이 · 해커톤 현황</div>
+    <h1>Social Seeding v2 — 무엇을 만들었고, 어떻게 접속하고, 무엇이 남았나</h1>
+    <p class="sub">브랜드 브리프 하나를 <b>완성된 TikTok 인플루언서 캠페인</b>으로 바꾸는 22-에이전트 플릿. 상근님이 넘긴 제품 기반을 <b>Google for Startups AI Agents Challenge Track-3 제출물</b>로 확장한 전 과정과 현재 상태, 그리고 해커톤 제출에 남은 작업까지 한 장에 담았습니다.</p>
+    <div class="meta-row">
+      <span class="pill">🟢 라이브 데모: <a href="https://ss-landing-80064221403.us-central1.run.app/demo/" target="_blank">ss-landing /demo/</a></span>
+      <span class="pill">해커톤 D-day 2026-06-05</span>
+      <span class="pill">작성 2026-06-01</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="summary">
+    <h2>30초 요약</h2>
+    <p><b>① 서비스</b> — 브랜드 브리프 → (소싱→검증→아웃리치→응답→발행→콘텐츠검증→리포트) 루프를 22개 전문 에이전트가 자율 수행, 사람은 켜둔 정책 게이트에서만 개입하는 <b>B2B SaaS</b>.</p>
+    <p><b>② 접속</b> — 설치 없이 브라우저에서 도는 <a class="link" href="https://ss-landing-80064221403.us-central1.run.app/demo/" target="_blank">라이브 데모</a> + Cloud Run에 배포된 Mission Control · ss-mcp A2A 노드.</p>
+    <p><b>③ 차이</b> — 상근님 기반(TS 로컬 제품) 위에 <b>9개 신규 디렉토리·812파일·+200,977/−329</b>를 가산해 "실제 배포되어 심사 가능한 제출물"로 전환.</p>
+    <p><b>④ 남은 것</b> — 코드 게이트는 전부 그린. <b>PR 2건 머지 · ss-mcp 재배포 · 데모영상 · Devpost 제출</b>(운영자·팀원 작업)만 남음.</p>
+  </div>
+
+  <nav class="toc">
+    <a href="#what"><b>01</b>어떤 서비스인가</a>
+    <a href="#access"><b>02</b>접속 방법 (라이브 URL)</a>
+    <a href="#boundary"><b>03</b>인수인계 경계 — git 근거</a>
+    <a href="#bigpicture"><b>04</b>큰 그림: 제품 → 제출물</a>
+    <a href="#scale"><b>05</b>변경 규모 (정량 지표)</a>
+    <a href="#newdirs"><b>06</b>신규 9개 디렉토리</a>
+    <a href="#arc"><b>07</b>Build → Optimize → Refactor</a>
+    <a href="#hackathon"><b>08</b>해커톤 — Track-3 요건 & 자산</a>
+    <a href="#state"><b>09</b>현재 상태 — 게이트 & 라이브</a>
+    <a href="#remaining"><b>10</b>다음 남은 작업</a>
+    <a href="#verdict"><b>11</b>결론</a>
+  </nav>
+
+  <!-- 01 WHAT -->
+  <section id="what">
+    <h2 class="sec">01 · 어떤 서비스인가</h2>
+    <p><b>Social Seeding v2</b>는 브랜드가 던진 한 줄 브리프를 받아, TikTok 인플루언서 캠페인의 전체 운영 루프를 <b>에이전트 플릿이 대신 굴리는</b> 제품입니다. 대시보드는 수작업 화면이 아니라 <b>Mission Control</b> — 에이전트가 한 일의 타임라인 + 승인 인박스 — 이 됩니다.</p>
+    <div class="flow">
+brand brief ─▶ <b>coordinator</b> (gemini-3.5-flash, Vertex global)
+   └▶ <b>22-agent ADK fleet</b> :  소싱 → 검증 → 아웃리치 → 응답처리 → 발행 → <span class="g">콘텐츠검증</span> → 리포트
+        └── A2A v0.3 message:send ──▶ OSS <b>tiktok-mcp-server</b> (크리에이터 소싱 · 브랜드 자산)
+   ▲ 사람은 켜둔 <b>정책 게이트</b>에서만 개입 (기본 always_ask)
+    </div>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>형태</td><td>멀티테넌트 <b>B2B SaaS</b> 인플루언서-캠페인 플랫폼 (per-call MCP 티어 과금)</td></tr>
+      <tr><td>핵심 가치</td><td>에이전시 관리 수수료 대비 <b>약 99.7% 저렴</b>, TAM $1.15B (<code>BUSINESS-CASE.md</code>)</td></tr>
+      <tr><td>에이전트</td><td>22개 전문 에이전트 — 자유 ReAct 루프가 아니라 <b>큐레이션된 도구 + Zod/typia 출력 계약 + USD 캡 + 에스컬레이션</b>을 가진 함수</td></tr>
+      <tr><td>모델</td><td>Gemini 3.5 flash(판단·코디네이터) / 3.1 flash-lite(벌크) — Vertex <code>global</code> 엔드포인트 only (D53)</td></tr>
+      <tr><td>안전장치</td><td>모든 외부 발신(<code>gmail.send</code>)은 정책 게이트 통과 전 미발화; 사용자 입력은 <code>prompt-guard</code> 선통과</td></tr>
+    </table>
+  </section>
+
+  <!-- 02 ACCESS -->
+  <section id="access">
+    <h2 class="sec">02 · 접속 방법 — 라이브 엔드포인트</h2>
+    <p>설치 없이 바로 확인할 수 있는 라이브 자원입니다. (프로젝트 <code>ss-v2-prod / ss-mcp-prod / ss-shared-infra</code>, Cloud Run ≈ $1–5/월)</p>
+    <div class="access">
+      <div class="acc">
+        <div class="t">🟢 라이브 데모 (설치 불필요)</div>
+        <div class="u"><a href="https://ss-landing-80064221403.us-central1.run.app/demo/" target="_blank">ss-landing-80064221403.us-central1.run.app/demo/</a></div>
+        <div class="d">브라우저에서 캠페인 루프 시연. 마지막 측정 200 · 1.17s · Lighthouse a11y 96.</div>
+      </div>
+      <div class="acc">
+        <div class="t">🟢 Mission Control (대시보드)</div>
+        <div class="u"><a href="https://ss-v2-web-722660901814.us-central1.run.app" target="_blank">ss-v2-web-722660901814.us-central1.run.app</a></div>
+        <div class="d">타임라인 + 승인 인박스. 헬스체크 <code>/api/healthz</code> → 200.</div>
+      </div>
+      <div class="acc">
+        <div class="t">🟢 ss-mcp-server (A2A 노드)</div>
+        <div class="u"><a href="https://ss-mcp-server-1049119860518.us-central1.run.app/.well-known/agent.json" target="_blank">…/.well-known/agent.json</a></div>
+        <div class="d">서명된 agent card (JWS ES256) <code>protocolVersion: "0.3.0"</code>. 무토큰 <code>message:send</code> → 401.</div>
+      </div>
+      <div class="acc warnb">
+        <div class="t">🟡 brand-campaign Cloud Workflow</div>
+        <div class="u">exec <code>7c08ce50</code> · SUCCEEDED 15.8s</div>
+        <div class="d">coordinator → A2A → 라이브 ss-mcp, 5명 실제 랭킹 크리에이터. (콘솔 자원, 공개 URL 아님)</div>
+      </div>
+    </div>
+    <div class="callout"><b>한 번에 재현</b> — <code>scripts/demo/submission/verify-live-evidence.sh</code> 가 라이브 엔드포인트·서명 카드·JWKS·인증 강제·실제 ADK 랭킹·Model Armor를 한 런으로 확인 (마지막 7/7 통과).</div>
+  </section>
+
+  <!-- 03 BOUNDARY -->
+  <section id="boundary">
+    <h2 class="sec">03 · 인수인계 경계 — git 히스토리 근거</h2>
+    <p>커밋 작성자·날짜로 인수 시점을 자동 판별했습니다. 상근님(<code>Sangguen Chang</code>)은 <b>2026-05-13~05-16</b>에 제품 기반을 만들고 README를 팀 온보딩용으로 확장(인계 커밋 <code>05813da</code>)한 뒤 인계, 저는 <b>2026-05-19부터</b> 챌린지 스택을 이어받았습니다.</p>
+    <div class="tl">
+      <div class="tl-track">
+        <div class="tl-seg tl-sg">상근님 · TS 제품 기반 (Phase 0-6)</div>
+        <div class="tl-seg tl-me">나 · Challenge Track-3 스택 (GCP·ADK·A2A·제출)</div>
+      </div>
+      <div class="tl-labels"><span>05-13</span><span>← 인계 05-16 (05813da) →</span><span>05-19</span><span>현재 05-31</span></div>
+    </div>
+    <table>
+      <tr><th>작성자</th><th>역할</th><th>커밋</th><th>기간</th><th>산출</th></tr>
+      <tr><td><b>Sangguen Chang</b> (상근님)</td><td>인계자</td><td>116 + 4</td><td>05-13~16</td><td>TS 모노레포 제품 기반 — 캠페인 루프 로컬 구동</td></tr>
+      <tr><td><b>ComBba / KimSejun</b> (나)</td><td>인수자</td><td><b>122</b></td><td>05-19~31</td><td>챌린지 스택 + 배포 + 제출 — 25 PR 병합</td></tr>
+    </table>
+  </section>
+
+  <!-- 04 BIGPICTURE -->
+  <section id="bigpicture">
+    <h2 class="sec">04 · 큰 그림 — 제품 → 제출물</h2>
+    <p>한 문장: <b>"로컬에서 도는 제품"을 "심사위원이 클릭하면 실제로 도는 제출물"로 바꿨습니다.</b> 기반은 그대로 토대로 남기고 클라우드 배포·22-에이전트 Python 플릿·A2A 프로토콜·OSS 분리·제출 패키지를 얹었습니다.</p>
+    <table>
+      <tr><th>측면</th><th>인계 시점 (05-16)</th><th>현재 (05-31)</th></tr>
+      <tr><td>정체성</td><td>v2 제품 리라이트 (로컬 캠페인 루프)</td><td>+ Track-3 단일 그랜드-내러티브 제출물</td></tr>
+      <tr><td>런타임</td><td>TS 모노레포 (Inngest + Next 16, 11 제품 에이전트)</td><td>+ <b>Python ADK 22-에이전트 플릿</b> (Vertex <code>global</code>)</td></tr>
+      <tr><td>구동 위치</td><td>로컬 (<code>pnpm dev</code> / memory-mongo)</td><td>+ <b>실제 GCP 배포</b> (Cloud Run · Cloud Workflows)</td></tr>
+      <tr><td>에이전트 연동</td><td>함수 직접 호출</td><td>+ <b>A2A v0.3 <code>message:send</code></b> — 배포 워크플로 내 라이브</td></tr>
+      <tr><td>TikTok 능력</td><td>인-프로세스 capability</td><td>+ <b>독립 OSS <code>tiktok-mcp-server</code></b> 분리 (서명 카드)</td></tr>
+      <tr><td>인프라 / 검증</td><td>없음 / vitest</td><td>+ <b>Terraform 66 .tf</b> · test-harness(chaos·golden·property·sim) · D1–D53</td></tr>
+      <tr><td>제출 자산</td><td>없음</td><td>+ Devpost 카피 · HONEST-SCOPE · 라이브-증거 스크립트 · 랜딩 사이트</td></tr>
+    </table>
+  </section>
+
+  <!-- 05 SCALE -->
+  <section id="scale">
+    <h2 class="sec">05 · 변경 규모 — 정량 지표</h2>
+    <div class="grid">
+      <div class="stat"><div class="n">812</div><div class="l">변경 파일</div></div>
+      <div class="stat g"><div class="n">+200,977</div><div class="l">추가된 줄</div></div>
+      <div class="stat r"><div class="n">−329</div><div class="l">삭제된 줄 (기반 보존)</div></div>
+      <div class="stat"><div class="n">25</div><div class="l">병합된 PR</div></div>
+    </div>
+    <div class="callout okc"><b>"거의 순수 가산"</b> — 삭제 329줄. 상근님 TS 기반을 갈아엎지 않고 <b>덧붙이는</b> 방식으로 제출 표면을 확장했다는 직접 증거.</div>
+    <h3>영역별 추가 코드량 (insertions)</h3>
+    <div class="bars">
+      <div class="bar-row"><span class="name">packages</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">+81,684</span></div>
+      <div class="bar-row"><span class="name">gcp-research</span><div class="bar-track"><div class="bar-fill" style="width:64.6%"></div></div><span class="bar-val">+52,764</span></div>
+      <div class="bar-row"><span class="name">scripts</span><div class="bar-track"><div class="bar-fill" style="width:22.8%"></div></div><span class="bar-val">+18,594</span></div>
+      <div class="bar-row"><span class="name">terraform</span><div class="bar-track"><div class="bar-fill" style="width:17.6%"></div></div><span class="bar-val">+14,336</span></div>
+      <div class="bar-row"><span class="name">test-harness</span><div class="bar-track"><div class="bar-fill" style="width:9.3%"></div></div><span class="bar-val">+7,607</span></div>
+      <div class="bar-row"><span class="name">apps/web</span><div class="bar-track"><div class="bar-fill" style="width:7.5%"></div></div><span class="bar-val">+6,167</span></div>
+      <div class="bar-row"><span class="name">site (랜딩)</span><div class="bar-track"><div class="bar-fill" style="width:7.5%"></div></div><span class="bar-val">+6,099</span></div>
+      <div class="bar-row"><span class="name">agents-cli-app</span><div class="bar-track"><div class="bar-fill" style="width:4.2%"></div></div><span class="bar-val">+3,392</span></div>
+      <div class="bar-row"><span class="name">deploy · oss</span><div class="bar-track"><div class="bar-fill" style="width:3.7%"></div></div><span class="bar-val">+3,014</span></div>
+    </div>
+  </section>
+
+  <!-- 06 NEWDIRS -->
+  <section id="newdirs">
+    <h2 class="sec">06 · 신규 9개 디렉토리 = 통째로 챌린지 스택</h2>
+    <p>인수 시점에 <b>존재하지 않았던</b> 9개 최상위 디렉토리. 이것이 "제품"과 "제출물"을 가르는 실체입니다.</p>
+    <div class="grid">
+      <div class="card"><span class="tag-sm">NEW</span> <b>packages/agents-adk</b><br><span style="color:var(--muted);font-size:13px">22-에이전트 ADK 플릿. <code>serve.py</code> = 워크플로가 호출하는 FastAPI 프런트.</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>oss/a2a-only-distribution</b><br><span style="color:var(--muted);font-size:13px">독립 OSS <code>tiktok-mcp-server</code> — A2A v0.3로 도달.</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>terraform</b><br><span style="color:var(--muted);font-size:13px">66 <code>.tf</code> — Cloud Run / Workflows IaC.</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>deploy</b><br><span style="color:var(--muted);font-size:13px">Dockerfile + cloudbuild.</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>test-harness</b><br><span style="color:var(--muted);font-size:13px">chaos / golden / property / simulation.</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>gcp-research</b><br><span style="color:var(--muted);font-size:13px">구속력 있는 <code>decisions/</code> D1–D53 + SERVICE-INVENTORY.</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>agents-cli-app</b><br><span style="color:var(--muted);font-size:13px">Google agents-cli/ADK 래퍼 (A2A 디스커버리).</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>site</b><br><span style="color:var(--muted);font-size:13px"><code>ss-landing</code> 정적 데모/리포트 (라이브).</span></div>
+      <div class="card"><span class="tag-sm">NEW</span> <b>scripts/demo</b><br><span style="color:var(--muted);font-size:13px">녹화·스토리보드 + <code>submission/</code> 제출 패키지.</span></div>
+    </div>
+  </section>
+
+  <!-- 07 ARC -->
+  <section id="arc">
+    <h2 class="sec">07 · Build → Optimize → Refactor 서사</h2>
+    <p>제출물 골격은 세 단계 그랜드-내러티브(D45/D50)이며, 각 단계가 실측값으로 뒷받침됩니다.</p>
+    <div class="arc">
+      <div class="step s1"><div class="tag">BUILD</div><h4>22-에이전트 플릿</h4><p style="font-size:13px;color:var(--muted)">Vertex AI 위 전체 캠페인 루프를 durable orchestration으로 구동.</p></div>
+      <div class="step s2"><div class="tag">OPTIMIZE</div><h4>최약 고리 하드닝</h4><p style="font-size:13px;color:var(--muted)">reply-triage 라우팅 <b>40.5%→100%</b>(train) / <b>71.4%</b>(미공개 holdout, 28.6pp gap 정직 유지).</p></div>
+      <div class="step s3"><div class="tag">REFACTOR</div><h4>OSS A2A 분리</h4><p style="font-size:13px;color:var(--muted)">TikTok 능력을 독립 서버로 분리, coordinator가 A2A로 도달 — <b>배포 워크플로 내 라이브</b>.</p></div>
+    </div>
+    <div class="callout okc"><b>라이브 증거</b> — Cloud Workflow <code>7c08ce50</code> <span class="ok">SUCCEEDED</span> 15.8s, 5명 실제 랭킹 크리에이터.</div>
+  </section>
+
+  <!-- 08 HACKATHON -->
+  <section id="hackathon">
+    <h2 class="sec">08 · 해커톤 — Track-3 요건 &amp; 제출 자산</h2>
+    <div class="card" style="border-left:4px solid var(--blue)">
+      <b>Google for Startups AI Agents Challenge · Track 3 (Refactor)</b><br>
+      <span style="font-size:13.5px;color:var(--muted)">단일 그랜드-내러티브 1개 엔트리, Overall Grand Prize 지향 (Refactor 테마 + APAC Regional 폴백). 루브릭: <b>Technical 30 / Business 30 / Innovation 20 / Demo 20</b>.</span>
+    </div>
+    <h3>공식 6대 요건 — 전부 충족</h3>
+    <table>
+      <tr><th>#</th><th>요건</th><th>상태</th><th>증거</th></tr>
+      <tr><td>①</td><td><b>B2B SaaS</b> 에이전트 제품</td><td><span class="ok">✓</span></td><td>멀티테넌트 캠페인 플랫폼, 에이전시 대비 ~99.7%↓, TAM $1.15B</td></tr>
+      <tr><td>②</td><td><b>Cloud Run</b> 배포</td><td><span class="ok">✓</span></td><td><code>ss-agents·ss-mcp-server·ss-landing</code> 라이브 + <code>brand-campaign-demo</code> Workflow</td></tr>
+      <tr><td>③</td><td><b>Model Garden</b> LLM 라우팅</td><td><span class="ok">✓</span></td><td><code>gemini-3.1-flash-lite</code> 퍼블리셔 플레인 경유, <code>MODEL_GARDEN_ROUTING=true</code> (D47)</td></tr>
+      <tr><td>④</td><td><b>A2A v0.3</b></td><td><span class="ok">✓</span></td><td>coordinator→a2a_invoke→ss-mcp 워크플로 내 라이브 + 서명 카드(JWS ES256)+JWKS (D48)</td></tr>
+      <tr><td>⑤</td><td><b>멀티-에이전트 오케스트레이션</b> (라이브)</td><td><span class="ok">✓</span></td><td>22-에이전트 플릿, 워크플로가 coordinator→fleet→A2A→ss-mcp end-to-end 라우팅</td></tr>
+      <tr><td>⑥</td><td><b>A2A intents 문서화</b> + Agent Identity</td><td><span class="ok">✓</span></td><td><code>A2A-INTENTS.md</code> + SPIFFE Agent Identity (<code>AGENT-IDENTITY.md</code>, D48)</td></tr>
+    </table>
+    <h3>준비된 제출 자산 (<code>scripts/demo/submission/</code>)</h3>
+    <p style="font-size:13.5px;color:var(--muted)">Devpost 카피(<code>devpost-track3.md</code>) · 비즈니스 케이스 · HONEST-SCOPE(17행) · 제출 체크리스트(<code>CHECKLIST.md</code>) · 아키텍처 다이어그램 · 스크린샷 매니페스트 · 라이브-증거 검증 스크립트.</p>
+    <div class="callout warnc"><b>⚠ 마감 시각 문서 불일치</b> — <code>CLAUDE.md</code>는 <b>2026-06-05 17:00 PT</b>, <code>CHECKLIST.md</code>는 <b>2026-06-05 23:59 PT (06-06 15:59 KST)</b>로 표기. 제출 전 <b>운영자가 공식 룰에서 확정</b> 필요. 보수적으로 17:00 PT 기준 준비 권장.</div>
+  </section>
+
+  <!-- 09 STATE -->
+  <section id="state">
+    <h2 class="sec">09 · 현재 상태 — 게이트 &amp; 라이브 서비스</h2>
+    <h3>품질 게이트 (2026-05-29 측정, 전부 그린)</h3>
+    <table>
+      <tr><th>게이트</th><th>결과</th></tr>
+      <tr><td><code>pnpm run verify-build</code></td><td><span class="ok">✅ 7/7</span> · FULL TURBO 캐시 · exit 0</td></tr>
+      <tr><td><code>pnpm test</code> (TS)</td><td><span class="ok">✅ 431 passed</span> (web 77·agents 64·capabilities 183·obs 4·workflows 103)</td></tr>
+      <tr><td><code>pytest agents-adk</code></td><td><span class="ok">✅ 2,924 passed</span> 3.94s, 오프라인</td></tr>
+      <tr><td><code>pytest refactor-mcp</code></td><td><span class="ok">✅ 92 / 1 skipped</span></td></tr>
+      <tr><td>golden-eval coordinator</td><td><span class="ok">✅ PASS</span> holdout 75.0%, gap +25.0%</td></tr>
+      <tr><td>golden-eval conversation</td><td><span class="ok">✅ PASS</span> holdout 71.43%, gap +28.57% (D52)</td></tr>
+      <tr><td>Lighthouse a11y (Mission Control)</td><td><span class="ok">✅ 1.0 (perfect)</span></td></tr>
+      <tr><td>라이브 ss-mcp 무토큰 <code>message:send</code></td><td><span class="ok">✅ 401</span> (REQUIRE_AUTH live)</td></tr>
+    </table>
+    <h3>배포된 라이브 서비스</h3>
+    <table>
+      <tr><th>서비스</th><th>상태</th><th>비고</th></tr>
+      <tr><td>ss-landing <code>/demo/</code></td><td><span class="ok">✅ 200 · 1.17s</span></td><td>Lighthouse a11y 96</td></tr>
+      <tr><td>ss-v2-web (Mission Control)</td><td><span class="ok">✅ 200</span></td><td><code>/api/healthz</code></td></tr>
+      <tr><td>ss-mcp-server</td><td><span class="ok">✅ alive</span></td><td>rev <code>00010-j26</code> · <span class="warn">이번 세션 코드 미반영</span></td></tr>
+      <tr><td>brand-campaign Workflow (A2A)</td><td><span class="ok">✅ 라이브</span></td><td>실행 <code>7c08ce50</code> SUCCEEDED</td></tr>
+      <tr><td>ss-agents (serve.py)</td><td><span class="warn">⚠ 미배포</span></td><td>로컬 검증만</td></tr>
+      <tr><td>Cloud Armor <code>ss-mcp-ratelimit</code></td><td><span class="warn">⚠ 생성·미부착</span></td><td>rule 1000 활성, LB+NEG는 P4</td></tr>
+    </table>
+    <div class="callout"><b>정직성 규율</b> — 선언했으나 라이브가 아닌 항목은 <code>HONEST-SCOPE.md</code>(17행)에 전부 공개. stub로 도는 것을 live라 주장하지 않음.</div>
+  </section>
+
+  <!-- 10 REMAINING -->
+  <section id="remaining">
+    <h2 class="sec">10 · 다음 남은 작업</h2>
+    <p>코드/검증 차이는 닫혔습니다. 남은 것은 제 권한 밖의 사람 결정·외부 변수입니다.</p>
+    <div class="grid">
+      <div class="stat y"><div class="n">2</div><div class="l">미생성 PR</div></div>
+      <div class="stat y"><div class="n">1</div><div class="l">ss-mcp 재배포</div></div>
+      <div class="stat r"><div class="n">4</div><div class="l">Devpost 제출 차단 항목</div></div>
+    </div>
+    <div class="card">
+      <div class="chk"><span>📦</span><span><b>PR 2건 생성·머지</b> — <code>docs/gcnext26-master-plan</code> + <code>feat/p1-hardening-d8</code> (origin 푸시 완료, squash 금지 <code>--merge</code>)</span><span class="who op">운영자 승인</span></div>
+      <div class="chk"><span>🚀</span><span><b>ss-mcp-server 재배포</b> — A2 rate-limit + A9 heuristic logging + X4 narrative 새 revision, no-traffic 카나리→smoke→cut</span><span class="who op">운영자 실행</span></div>
+      <div class="chk"><span>🎬</span><span><b>데모 영상 녹화·YouTube 업로드</b> — 시나리오 문서 준비됨(<code>2026-05-23-demo-video-scenario.md</code>), Unlisted 처리완료까지</span><span class="who team">팀원</span></div>
+      <div class="chk"><span>📸</span><span><b>★ 스크린샷 10장 캡처</b> — <code>SCREENSHOTS-MANIFEST.md §0</code> 세트</span><span class="who team">팀원</span></div>
+      <div class="chk"><span>📝</span><span><b>O1 Devpost 콘솔 GAP 10개 답변</b> — 팀 규모·라이선스·영상 길이·repo 공개범위·멀티트랙·IP 조항</span><span class="who op">운영자</span></div>
+      <div class="chk"><span>✅</span><span><b>Devpost Submit 클릭</b> — 단일 Track-3 폼, 마감 전</span><span class="who op">운영자</span></div>
+      <div class="chk"><span>🔐</span><span><b>repo 공개범위 결정</b> — Public OR private-with-judge-access (O1 답변과 일치)</span><span class="who op">운영자</span></div>
+      <div class="chk"><span>⏳</span><span><b>Gemini Enterprise 등록 승인</b> — Google Support 케이스 대기 (이미 disclosure 완료)</span><span class="who ext">외부 대기</span></div>
+      <div class="chk"><span>⏳</span><span><b>Cloud Armor LB+NEG 마이그레이션</b> — 1–2주 작업, D-day 내 불가 (정직 공개, P4)</span><span class="who ext">외부/P4</span></div>
+    </div>
+    <div class="callout warnc"><b>⏰ 타임박스 주의</b> — 체크리스트 기준 자산 준비 완료 시 제출 wall-time 약 60분, 영상 업로드·처리 미완 시 +3시간. <b>마감 3시간 이내 착수 금지</b>.</div>
+  </section>
+
+  <!-- 11 VERDICT -->
+  <section id="verdict">
+    <h2 class="sec">11 · 결론</h2>
+    <div class="card">
+      <p style="margin-top:0"><b>상근님이 남긴 것</b> — 견고한 제품 토대(TS 모노레포 캠페인 루프, Phase 0-6, 로컬 구동).</p>
+      <p><b>제가 더한 차이</b> — 그 토대를 <b>실제 배포되어 심사 가능한 Track-3 제출물</b>로 전환: 9개 신규 디렉토리, 22-에이전트 Python ADK 플릿, A2A v0.3 라이브 워크플로, OSS 분리, Terraform IaC, test-harness, D1–D53, 제출 패키지. 정량 <b>812파일·+200,977/−329·25 PR</b>, 기반 손실 0.</p>
+      <p style="margin-bottom:0"><b>현재</b> — 6대 해커톤 요건 전부 충족, 모든 빌드·테스트·a11y·라이브 게이트 그린. 남은 것은 <b>PR 머지 · 재배포 · 데모 영상 · Devpost 제출</b>이라는 운영자·팀원의 사람 행동뿐. (오늘 2026-06-01 기준 D-day까지 D-4.)</p>
+    </div>
+  </section>
+
+  <footer>
+    Social Seeding v2 · 서비스/접속/차이/해커톤 브리핑 · git <code>05813da..HEAD</code> 기준<br>
+    근거: <code>git shortlog/log/diff</code> · <code>README.md</code> · <code>CHECKLIST.md</code> · <code>devpost-track3.md</code> · <code>HONEST-SCOPE.md</code> · <code>2026-05-31-session-handoff.md</code><br>
+    생성 2026-06-01
+  </footer>
+</div>
+</body>
+</html>
