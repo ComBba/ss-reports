@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini Enterprise Agent Platform — 사용상태 정직 감사</title>
+<meta name="description" content="플랫폼 30+ 컴포넌트를 코드 실측 + HONEST-SCOPE 기준으로 라이브/게이트/스텁/자체구현/부재로 분류한 정직 감사.">
+<style>
+  :root{
+    --blue:#1a73e8;--purple:#9334e6;--green:#1e8e3e;--amber:#b8860b;--orange:#c5630c;--gray:#80868b;--red:#d93025;
+    --ink:#202124;--muted:#5f6368;--line:#e6e8eb;--bg:#f6f7f9;--card:#fff;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .in{max-width:1000px;margin:0 auto;padding:0 22px}
+  a{color:var(--blue)}
+  header{background:linear-gradient(135deg,#202124,#3c1361 70%,#1a73e8);color:#fff;padding:54px 0 40px}
+  header .kicker{font:700 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;opacity:.85}
+  header h1{font-size:clamp(23px,3.6vw,34px);margin:.4em 0 .2em;font-weight:800;letter-spacing:-.02em}
+  header p{opacity:.92;max-width:60ch;font-size:15px;margin:.3em 0}
+  header code{background:rgba(255,255,255,.16);padding:1px 6px;border-radius:5px;font-size:.92em}
+
+  section{padding:34px 0;border-bottom:1px solid var(--line)}
+  h2.sh{font:800 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+  h2.sh+.t{font-size:clamp(19px,2.6vw,24px);font-weight:800;margin:0 0 16px;letter-spacing:-.01em}
+  p.note{color:var(--muted);font-size:13.5px}
+
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 0}
+  .pill{display:inline-flex;align-items:center;gap:.5em;font:700 12px/1 var(--sans);padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:#fff;white-space:nowrap}
+  .pill .d{width:.62em;height:.62em;border-radius:50%}
+  .d.live{background:var(--green)} .d.gated{background:var(--amber)} .d.stub{background:var(--orange)} .d.own{background:var(--blue)} .d.absent{background:var(--gray)}
+
+  /* summary band */
+  .sumgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:6px}
+  .sc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
+  .sc .n{font-size:30px;font-weight:800;letter-spacing:-.02em} .sc .l{font-size:12px;color:var(--muted);margin-top:6px}
+  .sc.live .n{color:var(--green)} .sc.gated .n{color:var(--amber)} .sc.stub .n{color:var(--orange)} .sc.own .n{color:var(--blue)} .sc.absent .n{color:var(--gray)}
+  .headline{background:#fff8e1;border:1px solid #fde9b0;border-left:5px solid var(--amber);border-radius:12px;padding:16px 18px;margin-top:18px;font-size:14.5px}
+  .headline b{color:#7a5b00}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f1f3f5;font-size:12px;letter-spacing:.03em;color:var(--muted);text-transform:uppercase}
+  tr:last-child td{border-bottom:0}
+  td.comp{font-weight:700;white-space:nowrap}
+  .badge{display:inline-block;font:700 11px/1 var(--mono);padding:5px 9px;border-radius:7px;white-space:nowrap}
+  .b-live{background:#e6f4ea;color:#0f7a32;border:1px solid #b7e1c1}
+  .b-gated{background:#fef7e0;color:#8a6400;border:1px solid #fae6a8}
+  .b-stub{background:#fde7d6;color:#9a4c08;border:1px solid #f6c9a3}
+  .b-own{background:#e8f0fe;color:#1559c9;border:1px solid #c2d7fb}
+  .b-absent{background:#eceef1;color:#5f6368;border:1px solid #dadce0}
+  td code{background:#f1f3f5;padding:1px 5px;border-radius:4px;font-size:11.5px;color:#3c4043}
+  td .ev{color:var(--muted);font-size:12.5px}
+
+  /* gaps */
+  .gap{background:#fff;border:1px solid var(--line);border-left:5px solid var(--red);border-radius:12px;padding:16px 18px;margin:12px 0}
+  .gap h3{margin:0 0 6px;font-size:16px} .gap p{margin:0;color:var(--muted);font-size:13.5px}
+  .gap .tag{display:inline-block;font:700 10px/1 var(--mono);background:#fce8e6;color:#b3261e;padding:4px 8px;border-radius:6px;margin-right:8px}
+  .rec{background:#e8f0fe;border:1px solid #c2d7fb;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+
+  footer{padding:30px 0 60px;color:var(--muted);font-size:12.5px}
+  footer code{background:#eceef1;padding:1px 5px;border-radius:4px}
+  @media(max-width:760px){.sumgrid{grid-template-columns:1fr 1fr}th:nth-child(3),td:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="in">
+    <div class="kicker">Honest Audit · 코드 실측 기준</div>
+    <h1>Gemini Enterprise Agent Platform — 우리 프로젝트 사용상태 감사</h1>
+    <p>공식 플랫폼 맵의 33개 컴포넌트를 <b>코드 실측 + <code>HONEST-SCOPE.md</code>(단일 진실원본)</b> 기준으로 분류했습니다. "선언됨"과 "실제 라이브"를 분리해 <b>부족한 점</b>을 그대로 드러냅니다. (AP2 감사와 동일 방법)</p>
+    <p class="note" style="opacity:.85">측정: 2026-06-02 · 근거 표기 = HONEST-SCOPE 행번호(HS#) · 코드 경로 · grep 실측 0건</p>
+  </div>
+</header>
+
+<section>
+  <div class="in">
+    <h2 class="sh">분류 기준 · Legend</h2>
+    <div class="legend">
+      <span class="pill"><span class="d live"></span>🟢 LIVE — GCP에서 실제 실행 입증(demonstrated-live)</span>
+      <span class="pill"><span class="d gated"></span>🟡 GATED — 코드 실재·오프라인 통과, 라이브는 operator 단계</span>
+      <span class="pill"><span class="d stub"></span>🟠 STUB/선언 — 기본 스텁 또는 선언-미집행</span>
+      <span class="pill"><span class="d own"></span>🔵 자체구현 — 관리형 제품이 아닌 우리 코드/에이전트</span>
+      <span class="pill"><span class="d absent"></span>⚪ 부재 — 구현 0건</span>
+    </div>
+    <p class="note" style="margin-top:14px">⚠️ <b>핵심 주의</b>: 사내 <code>SERVICE-INVENTORY.md</code>는 121개 GCP 서비스 중 <b>95개를 "✅ Used"</b>로 표기하지만, 이는 <b>계획 문서</b>입니다(아직 D53 이전 모델 <code>gemini-2.5/3.1-pro</code>를 ✅로 표기 = stale). 실제 라이브 상태의 단일 진실원본은 <code>HONEST-SCOPE.md</code>이며 거기서 <b>demonstrated-live는 7행</b>뿐입니다. 본 감사는 후자를 기준으로 합니다.</p>
+  </div>
+</section>
+
+<section>
+  <div class="in">
+    <h2 class="sh">요약 · Summary</h2>
+    <div class="t">33개 컴포넌트 분포</div>
+    <div class="sumgrid">
+      <div class="sc live"><div class="n">6</div><div class="l">🟢 LIVE</div></div>
+      <div class="sc gated"><div class="n">5</div><div class="l">🟡 GATED</div></div>
+      <div class="sc stub"><div class="n">7</div><div class="l">🟠 STUB/선언</div></div>
+      <div class="sc own"><div class="n">8</div><div class="l">🔵 자체구현</div></div>
+      <div class="sc absent"><div class="n">7</div><div class="l">⚪ 부재</div></div>
+    </div>
+    <div class="headline">
+      <b>한 줄 진단:</b> 플랫폼의 <b>핵심 빌드 축(ADK · Gemini · A2A · MCP · Grounding · Model Inference)은 진짜 라이브</b>이고 이게 제출의 강점입니다. 그러나 <b>Govern/Optimize 계층 대부분은 관리형 제품이 아니라 우리가 직접 만든 에이전트/코드</b>이고, <b>Agent Runtime(관리형)은 실제로 Cloud Run으로 대체</b>되어 있으며, <b>A2UI·UCP·RAG·Vertex AI Search·Agent Sandbox·Managed Training은 제품코드 0건</b>입니다.
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="in">
+    <h2 class="sh">① Build</h2>
+    <div class="t">에이전트·모델·도구 계층</div>
+    <table>
+      <tr><th>컴포넌트</th><th>상태</th><th>근거 (코드 / HS행)</th></tr>
+      <tr><td class="comp">Agent Development Kit</td><td><span class="badge b-live">🟢 LIVE</span></td><td>ss-mcp가 ADK SequentialAgent 실행(searcher→ranker), 22-에이전트 플릿. <span class="ev">HS#8 · <code>packages/agents-adk</code></span></td></tr>
+      <tr><td class="comp">Gemini Models</td><td><span class="badge b-live">🟢 LIVE</span></td><td><code>gemini-3.5-flash</code>/<code>3.1-flash-lite</code>, Vertex <code>global</code>. <span class="ev">HS#11</span></td></tr>
+      <tr><td class="comp">Model Inference</td><td><span class="badge b-live">🟢 LIVE</span></td><td>실 <code>generateContent</code> 검증(CoordinatorOutput, exit 0). <span class="ev">HS#11</span></td></tr>
+      <tr><td class="comp">A2A</td><td><span class="badge b-live">🟢 LIVE</span></td><td>A2A v0.3 서명카드(KMS ES256)+JWKS, 라이브 cross-call 5 creators. <span class="ev">HS#5·6·8</span></td></tr>
+      <tr><td class="comp">MCP</td><td><span class="badge b-live">🟢 LIVE</span></td><td>OSS <code>tiktok-mcp-server</code>, <code>protocolVersion 0.3.0</code>. <span class="ev">HS#8</span></td></tr>
+      <tr><td class="comp">Grounding</td><td><span class="badge b-live">🟢 LIVE</span></td><td>Google Search grounding(<code>web.search</code>) 실 인용 5건. <span class="ev">HS#16</span></td></tr>
+      <tr><td class="comp">Cloud Marketplace</td><td><span class="badge b-stub">🟠 PENDING</span></td><td>한국 결제권역 제외(D2) → A2A-only 배포(D3)로 우회. 등재 PENDING. <span class="ev">README-track3</span></td></tr>
+      <tr><td class="comp">APIs and Connectors</td><td><span class="badge b-stub">🟠 STUB-default</span></td><td>capability layer <code>CAPABILITY_LAYER_MODE</code> 기본 stub; 미배선 도구는 live=NotImplementedError. tiktok 도구만 라이브 배선. <span class="ev">HS§2b</span></td></tr>
+      <tr><td class="comp">AP2 and UCP</td><td><span class="badge b-stub">🟠 부분/STUB</span></td><td>AP2=Intent Mandate만(암호 서명·WebAuthn 검증 미구현, <code>NotImplementedError</code>/<code>stub-sig://</code>). UCP=코드 0건. <span class="ev">HS§4 · <code>lib/ap2</code></span></td></tr>
+      <tr><td class="comp">Agent Studio</td><td><span class="badge b-stub">🟠 선언(설계용)</span></td><td>SERVICE-INV "visual prototyping"으로 ✅, 런타임 산출물 없음(설계 도구). <span class="ev">검증불가</span></td></tr>
+      <tr><td class="comp">Agent Garden</td><td><span class="badge b-stub">🟠 선언(설계용)</span></td><td>SERVICE-INV "atomic seeds"로 ✅, 런타임 산출물 없음. <span class="ev">검증불가</span></td></tr>
+      <tr><td class="comp">Search (Vertex AI Search)</td><td><span class="badge b-absent">⚪ 부재(선언만)</span></td><td>SERVICE-INV ✅(RAG) 이나 제품코드 <code>discoveryengine</code> 0건. discoveryengine은 GE 등록 스크립트에서만 사용. <span class="ev">grep 0</span></td></tr>
+      <tr><td class="comp">RAG</td><td><span class="badge b-absent">⚪ 부재</span></td><td>제품코드에 vector-search/embedding 0건(SERVICE-INV는 ✅로 선언). <span class="ev">grep 0</span></td></tr>
+      <tr><td class="comp">A2UI</td><td><span class="badge b-absent">⚪ 부재</span></td><td>코드 0건. <span class="ev">grep 0</span></td></tr>
+      <tr><td class="comp">Managed Training</td><td><span class="badge b-absent">⚪ 부재</span></td><td>파인튜닝/SFT 없음(Prompt Optimizer ≠ Training). <span class="ev">grep 0</span></td></tr>
+      <tr><td class="comp">3P Agent Framework</td><td><span class="badge b-absent">⚪ 미사용(설계)</span></td><td>ADK 직접 사용, 제3자 프레임워크 미채택.</td></tr>
+      <tr><td class="comp">3P and Open Models</td><td><span class="badge b-absent">⚪ 미사용(설계)</span></td><td>D53 — Gemini 전용. 의도적 미사용.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="in">
+    <h2 class="sh">② Scale</h2>
+    <div class="t">실행·세션·메모리 계층</div>
+    <table>
+      <tr><th>컴포넌트</th><th>상태</th><th>근거 (코드 / HS행)</th></tr>
+      <tr><td class="comp">Agent Runtime <span style="font-weight:400;color:var(--muted)">(GA)</span></td><td><span class="badge b-own">🔵 Cloud Run 대체</span></td><td><b>관리형 Agent Runtime 미사용</b>. <code>serve.py</code>=FastAPI+uvicorn on Cloud Run(ss-agents). 배포 스크립트(<code>agent-runtime-deploy.sh</code>)는 존재하나 demonstrated-live 경로는 Cloud Run. SERVICE-INV "all 22 hosted here"=계획. <span class="ev">HS#7·§4 A6</span></td></tr>
+      <tr><td class="comp">Agent Memory Bank <span style="font-weight:400;color:var(--muted)">(GA)</span></td><td><span class="badge b-gated">🟡 env-gated</span></td><td>Firestore가 기본 백엔드, Vertex Memory Bank는 env로만 활성(오프라인 테스트). 기본 라이브 아님. 플릿 주입은 P3. <span class="ev">HS#4·§4 B5</span></td></tr>
+      <tr><td class="comp">Agent Sessions <span style="font-weight:400;color:var(--muted)">(GA)</span></td><td><span class="badge b-own">🔵 ADK 인프로세스</span></td><td>ADK 세션을 in-process로 사용. 관리형 Agent Sessions로 배선되지 않음.</td></tr>
+      <tr><td class="comp">Agent Sandbox <span style="font-weight:400;color:var(--muted)">(GA)</span></td><td><span class="badge b-absent">⚪ 부재(선언만)</span></td><td>SERVICE-INV ✅(gVisor) 이나 코드 0건. <span class="ev">grep 0</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="in">
+    <h2 class="sh">③ Govern</h2>
+    <div class="t">게이트웨이·신원·정책·보안 계층 — 대부분 자체구현</div>
+    <table>
+      <tr><th>컴포넌트</th><th>상태</th><th>근거 (코드 / HS행)</th></tr>
+      <tr><td class="comp">Agent Identity <span style="font-weight:400;color:var(--muted)">(GA)</span></td><td><span class="badge b-gated">🟡 실 SPIFFE ID</span></td><td>각 에이전트가 SPIFFE workload identity 보유(<code>spiffe://…/tiktok-mcp-runner</code>); 카드 실재. 전송계층 검증은 프로덕션 경로. <span class="ev">HS#12</span></td></tr>
+      <tr><td class="comp">Agent Registry <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-own">🔵 자체+GE등록</span></td><td>내부 <code>agent_registry_list</code> 도구(우리 것). 단, 라이브 Gemini Enterprise 앱 Agent Gallery에 <b>실제 등록·ENABLED</b>(가장 제품에 근접). <span class="ev">HS#14</span></td></tr>
+      <tr><td class="comp">Model Armor</td><td><span class="badge b-gated">🟡 부분(A2A만)</span></td><td>ss-mcp A2A ingress에는 실 <code>model_armor_query_blocks</code>(GA-real). 그러나 <b>22-에이전트 플릿엔 미적용</b> — <code>prompt-guard.ts</code> 6패턴 가드로 대체. 플릿 적용은 Phase 4. <span class="ev">HS#3·§4 B4</span></td></tr>
+      <tr><td class="comp">Agent Gateway <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-stub">🟠 선언-미집행</span></td><td>mTLS <b>선언했으나 데모에서 미집행</b>. Agent Gateway mTLS는 Google Private Preview. <span class="ev">HS#13</span></td></tr>
+      <tr><td class="comp">Agent Anomaly Detection <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-own">🔵 자체구현</span></td><td>자체 <code>anomaly_watch</code>(Tier 3) 에이전트. 관리형 제품 아님.</td></tr>
+      <tr><td class="comp">Agent Policy</td><td><span class="badge b-own">🔵 자체구현</span></td><td>자체 정책 게이트 7종(승인 인박스). 관리형 Agent Policy 제품 아님.</td></tr>
+      <tr><td class="comp">Agent Security <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-own">🔵 자체구현</span></td><td>자체 <code>security_watch</code> + <code>prompt-guard</code>. 관리형 제품 아님.</td></tr>
+      <tr><td class="comp">Agent Compliance</td><td><span class="badge b-own">🔵 자체구현</span></td><td>자체 <code>compliance</code> 에이전트. 관리형 제품 아님.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="in">
+    <h2 class="sh">④ Optimize</h2>
+    <div class="t">평가·시뮬·관측·최적화 계층</div>
+    <table>
+      <tr><th>컴포넌트</th><th>상태</th><th>근거 (코드 / HS행)</th></tr>
+      <tr><td class="comp">Agent Observability <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-gated">🟡 wired·export gated</span></td><td>OTel span을 <code>run_agent</code>에 배선(<code>SS_OTEL_ENABLED</code>), span 형태 오프라인 검증. Cloud Trace 라이브 export는 operator 단계. + 자체 <code>packages/observability</code>. <span class="ev">HS#2</span></td></tr>
+      <tr><td class="comp">Agent Evaluation <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-gated">🟡 자체·오프라인</span></td><td>골든 eval 게이트 2/22(coordinator·conversation), 나머지 20개는 schema/통합 커버리지만. agents-cli 루브릭 LLM-judge는 라이브 입증(4/4). <span class="ev">HS§4 A4·A8·B10</span></td></tr>
+      <tr><td class="comp">Agent Optimizer <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-stub">🟠 명칭오인/로컬</span></td><td>GA "Agent Optimizer"는 <b>존재하지 않음</b> → GA 제품은 Vertex AI <b>Prompt Optimizer(VAPO)</b>. 우리는 로컬 결정론 triage 패스(40.5→100% train·71.4% holdout) 오프라인. VAPO는 배선·미실행(operator). <span class="ev">HS#1·§3.1</span></td></tr>
+      <tr><td class="comp">Agent Simulation <span style="font-weight:400;color:var(--muted)">(New)</span></td><td><span class="badge b-own">🔵 자체구현</span></td><td>자체 <code>triage_sim</code>/test-harness 시뮬레이션. 관리형 제품 아님.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="in">
+    <h2 class="sh">핵심 부족한 점 · Top Gaps</h2>
+    <div class="t">제출 전 인지·대응할 우선순위</div>
+
+    <div class="gap"><h3><span class="tag">GAP 1</span>선언 ✅ vs 실제 라이브의 큰 간극</h3>
+      <p>사내 <code>SERVICE-INVENTORY.md</code>는 121개 중 95개 "✅ Used"로 표기하지만(게다가 D53 이전 stale 모델 포함), <code>HONEST-SCOPE.md</code> 기준 <b>demonstrated-live는 7행</b>뿐. 심사자가 인벤토리를 "라이브"로 오독하지 않도록 HONEST-SCOPE를 항상 우선 노출해야 함.</p></div>
+
+    <div class="gap"><h3><span class="tag">GAP 2</span>Govern/Optimize = 관리형 제품이 아닌 "자체구현"</h3>
+      <p>Registry·Anomaly·Policy·Security·Compliance·Simulation은 GCP 관리형 제품이 아니라 우리 에이전트/코드. "플랫폼 제품을 사용"이 아니라 "개념을 자체구현"으로 정직히 표현해야 함(Built-With 태그가 제품 사용으로 오인될 위험).</p></div>
+
+    <div class="gap"><h3><span class="tag">GAP 3</span>Agent Runtime(관리형) 미사용 — Cloud Run 대체</h3>
+      <p><code>serve.py</code> 타이틀이 "ADK Agent Runtime"이지만 실체는 FastAPI on Cloud Run. SERVICE-INV "all 22 agents hosted here"는 계획. Track 2 핵심 차별점이라면 실제 Agent Runtime 배포 1건이 필요.</p></div>
+
+    <div class="gap"><h3><span class="tag">GAP 4</span>암호·집행 계층 스텁 (AP2 / Model Armor 플릿 / mTLS)</h3>
+      <p>AP2 실서명·WebAuthn 검증 미구현(<code>NotImplementedError</code>), Model Armor는 A2A ingress만(플릿 미적용), Agent Gateway mTLS 선언-미집행. 보안 "집행"이 데모에서 부분적.</p></div>
+
+    <div class="gap"><h3><span class="tag">GAP 5</span>완전 부재 컴포넌트</h3>
+      <p>A2UI · UCP · RAG/Vertex AI Search · Agent Sandbox · Managed Training = 제품코드 0건. 일부는 SERVICE-INV에 ✅로 선언되어 있어 정정 필요.</p></div>
+
+    <div class="rec">
+      <b>권장 (작은 노력으로 라이브 1건씩 승격 가능):</b><br>
+      ① AP2: 의존성(<code>@simplewebauthn/server</code>·<code>jose</code>) 이미 존재 → Intent Mandate 1건 실서명·검증 배선 → "암호 검증 라이브" 정직 주장.<br>
+      ② Agent Runtime: <code>agent-runtime-deploy.sh</code>로 대표 에이전트 1개 실제 배포 → "관리형 Agent Runtime 라이브" 1건 확보.<br>
+      ③ SERVICE-INVENTORY의 ✅를 HONEST-SCOPE 기준으로 동기화(특히 RAG·Vertex AI Search·Agent Sandbox·stale 모델).<br>
+      ④ 그 외는 현 "자체구현/스텁"을 <b>정직하게 라벨</b>만 유지 — 위조 없음이 이미 최대 강점.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="in">
+    <p><b>방법</b>: 공식 플랫폼 맵(이미지) 컴포넌트 ↔ 저장소 코드 grep 실측 + <code>HONEST-SCOPE.md</code>(라이브/스텁 단일 진실원본) + <code>SERVICE-INVENTORY.md</code>(선언) 교차검증. 추측 0 · 모든 행 근거 표기.</p>
+    <p>정직성 평가: 이 프로젝트는 <b>위조가 없음</b> — 스텁/미구현/선언-미집행이 코드와 HONEST-SCOPE에 명시되어 있음. 본 감사는 "숨긴 빚"이 아니라 "로드맵"을 드러낸 것. 측정 2026-06-02 · GitHub Pages.</p>
+  </div>
+</footer>
+
+</body>
+</html>
