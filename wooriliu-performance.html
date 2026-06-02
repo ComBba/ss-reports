@@ -67,6 +67,28 @@
   .lb .bar .val{text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
   footer{margin-top:48px;color:var(--dim);font-size:12px;border-top:1px solid var(--line);padding-top:18px}
   .pii{display:inline-block;background:#161a33;border:1px solid var(--line);border-radius:8px;padding:6px 10px;color:var(--dim)}
+
+  /* tiktok wall */
+  .tkwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:14px}
+  .tk{aspect-ratio:9/16;border-radius:16px;overflow:hidden;position:relative;border:1px solid var(--line);box-shadow:0 14px 32px -18px #000}
+  .tk-vid{position:absolute;inset:0;background:linear-gradient(140deg,hsl(var(--h1) 72% 24%),hsl(var(--h2) 76% 13%));background-size:185% 185%;animation:tkpan 7s ease-in-out infinite}
+  .tk-vid::before,.tk-vid::after{content:"";position:absolute;border-radius:50%;filter:blur(22px);opacity:.55;mix-blend-mode:screen}
+  .tk-vid::before{width:62%;height:42%;left:-12%;top:7%;background:hsl(var(--h1) 92% 62%);animation:tkfloat 6s ease-in-out infinite}
+  .tk-vid::after{width:56%;height:38%;right:-14%;bottom:13%;background:hsl(var(--h2) 92% 62%);animation:tkfloat 8.5s ease-in-out infinite reverse}
+  .tk-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.16) 50%,transparent 68%);transform:translateX(-120%);animation:tkshine 4.6s ease-in-out infinite}
+  @keyframes tkpan{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  @keyframes tkfloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(10%,9%) scale(1.08)}}
+  @keyframes tkshine{0%{transform:translateX(-120%)}58%,100%{transform:translateX(120%)}}
+  .tk-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;font:700 9px/1 ui-monospace,monospace;z-index:2}
+  .tk-tag{background:rgba(0,0,0,.42);padding:4px 7px;border-radius:6px;color:#fff}
+  .tk-ver{background:rgba(52,211,153,.92);color:#04140d;padding:4px 7px;border-radius:6px}
+  .tk-play{position:absolute;inset:0;display:grid;place-items:center;font-size:34px;color:rgba(255,255,255,.9);text-shadow:0 2px 14px rgba(0,0,0,.55);animation:tkpulse 2.6s ease-in-out infinite;z-index:1}
+  @keyframes tkpulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.13);opacity:1}}
+  .tk-rail{position:absolute;right:7px;bottom:58px;display:flex;flex-direction:column;gap:11px;align-items:center;z-index:2}
+  .tk-rail .ri{text-align:center;color:#fff} .tk-rail .ic{font-size:17px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))} .tk-rail .rn{font:700 10px/1 ui-monospace,monospace;margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .tk-bottom{position:absolute;left:9px;right:40px;bottom:9px;z-index:2}
+  .tk-h{font:800 13px/1.1 inherit;color:#fff;text-decoration:none;text-shadow:0 1px 5px rgba(0,0,0,.65)} .tk-h:hover{text-decoration:underline}
+  .tk-cap{font:600 10px/1.25 inherit;color:rgba(255,255,255,.85);margin-top:4px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 </style>
 </head>
 <body>
@@ -111,7 +133,7 @@
   </section>
 
   <section class="card lb">
-    <div class="sechead"><h2>게시물 리더보드</h2><span class="hint">상위 게시물 · 라벨은 익명화(집계·PII 비노출)</span></div>
+    <div class="sechead"><h2>게시물 리더보드</h2><span class="hint">상위 게시물 · 공개 핸들 · 공개 지표</span></div>
     <div class="controls">
       <button data-sort="performanceScore" class="active">성과점수순</button>
       <button data-sort="views">조회수순</button>
@@ -119,14 +141,22 @@
     <div id="lb"></div>
   </section>
 
+  <section class="card">
+    <div class="sechead"><h2>크리에이터 월 · TikTok 스타일</h2><span class="hint">에이전트가 소싱한 실제 공개 크리에이터 · 핸들 클릭 = 실제 프로필</span></div>
+    <div class="tkwall" id="tkwall"></div>
+    <p style="color:var(--dim);font-size:12px;margin-top:14px;line-height:1.6">
+      영상 영역은 <b style="color:var(--ink)">스타일화 표현</b>입니다(실제 게시물 프레임이 아님). 핸들·조회수·ER은 <b style="color:var(--ink)">공개 지표</b>이며, 핸들을 누르면 실제 TikTok 프로필로 이동합니다. 브랜드-캠페인(우리리우) 연결은 <b style="color:var(--ink)">데모 픽스처</b>입니다.
+    </p>
+  </section>
+
   <footer>
-    <span class="pii">🔒 집계값만 · 개별 크리에이터 핸들/이메일 등 PII 비노출</span>
+    <span class="pii">🔓 공개 TikTok 핸들 · 공개 지표 · 영상영역은 스타일화(실프레임 아님) · 브랜드-캠페인 연결은 데모 픽스처</span>
     &nbsp;생성: <span id="gen"></span> · social-seeding v2 autonomous pipeline
   </footer>
 </div>
 
 <script>
-const D = {"funnel":{"candidate":0,"shortlisted":0,"outreach_sent":16,"in_conversation":0,"agreed":0,"address_collected":0,"shipped":2,"delivered":2,"posted":1,"verified":16,"declined":0,"no_response":0,"flaked":0},"goals":{"targetLivePosts":10,"verifiedCount":16,"percentOfGoal":1.6,"daysToDeadline":-1,"goalMet":true},"reach":{"verifiedViews":59498,"verifiedLikes":4554,"verifiedComments":114,"verifiedShares":50,"weightedEngagementRate":0.07929678308514572},"performance":{"avgPerformanceScore":42.4,"medianPerformanceScore":42},"leaderboard":[{"rank":1,"label":"Creator 01","views":164,"performanceScore":88},{"rank":2,"label":"Creator 02","views":379,"performanceScore":67},{"rank":3,"label":"Creator 03","views":201,"performanceScore":65},{"rank":4,"label":"Creator 04","views":174,"performanceScore":63},{"rank":5,"label":"Creator 05","views":244,"performanceScore":57},{"rank":6,"label":"Creator 06","views":38200,"performanceScore":52},{"rank":7,"label":"Creator 07","views":462,"performanceScore":44},{"rank":8,"label":"Creator 08","views":294,"performanceScore":43},{"rank":9,"label":"Creator 09","views":660,"performanceScore":41},{"rank":10,"label":"Creator 10","views":310,"performanceScore":39},{"rank":11,"label":"Creator 11","views":417,"performanceScore":38},{"rank":12,"label":"Creator 12","views":2349,"performanceScore":25},{"rank":13,"label":"Creator 13","views":1788,"performanceScore":22},{"rank":14,"label":"Creator 14","views":1095,"performanceScore":15},{"rank":15,"label":"Creator 15","views":361,"performanceScore":12},{"rank":16,"label":"Creator 16","views":12400,"performanceScore":7}],"erPct":7.929678308514572,"generatedAt":"2025-12-01T00:00:00.000Z"};
+const D = {"funnel":{"candidate":0,"shortlisted":0,"outreach_sent":16,"in_conversation":0,"agreed":0,"address_collected":0,"shipped":2,"delivered":2,"posted":1,"verified":16,"declined":0,"no_response":0,"flaked":0},"goals":{"targetLivePosts":10,"verifiedCount":16,"percentOfGoal":1.6,"daysToDeadline":-1,"goalMet":true},"reach":{"verifiedViews":59498,"verifiedLikes":4554,"verifiedComments":114,"verifiedShares":50,"weightedEngagementRate":0.07929678308514572},"performance":{"avgPerformanceScore":42.4,"medianPerformanceScore":42},"leaderboard":[{"rank":1,"handle":"weenz92","views":164,"er":12.2,"performanceScore":88},{"rank":2,"handle":"_alejandrauve","views":379,"er":18.6,"performanceScore":67},{"rank":3,"handle":"dane2749","views":201,"er":9.0,"performanceScore":65},{"rank":4,"handle":"floralvaradomeza","views":174,"er":8.6,"performanceScore":63},{"rank":5,"handle":"nally_tips#2","views":244,"er":8.6,"performanceScore":57},{"rank":6,"handle":"lizethhv2","views":38200,"er":10.3,"performanceScore":52},{"rank":7,"handle":"portorrealbeauty","views":462,"er":6.5,"performanceScore":44},{"rank":8,"handle":"nally_tips","views":294,"er":5.4,"performanceScore":43},{"rank":9,"handle":"andressacastillo","views":660,"er":6.4,"performanceScore":41},{"rank":10,"handle":"alepicazarri","views":310,"er":7.1,"performanceScore":39},{"rank":11,"handle":"beverly.hills_92","views":417,"er":3.1,"performanceScore":38},{"rank":12,"handle":"luzzpitaa","views":2349,"er":4.5,"performanceScore":25},{"rank":13,"handle":"luzzpitaa#2","views":1788,"er":4.3,"performanceScore":22},{"rank":14,"handle":"larablanca12","views":1095,"er":2.1,"performanceScore":15},{"rank":15,"handle":"brenda.vazquez1","views":361,"er":2.5,"performanceScore":12},{"rank":16,"handle":"guiomarmakeup","views":12400,"er":1.4,"performanceScore":7}],"erPct":7.929678308514572,"generatedAt":"2025-12-01T00:00:00.000Z"};
 const fmt = n => n.toLocaleString();
 // count-up
 function countUp(el){
@@ -178,7 +208,7 @@ function renderLB(sortKey){
   rows.forEach(r=>{
     const bar=document.createElement('div');bar.className='bar';
     const val= sortKey==='views'? fmt(r.views): r.performanceScore;
-    bar.innerHTML='<div class="lbl">'+r.label+'</div><div class="t"><div class="f"></div></div><div class="val">'+val+'</div>';
+    bar.innerHTML='<div class="lbl">@'+r.handle+'</div><div class="t"><div class="f"></div></div><div class="val">'+val+'</div>';
     host.appendChild(bar);
     requestAnimationFrame(()=>{ bar.querySelector('.f').style.width=(6+(r[sortKey]/max)*94)+'%'; });
   });
@@ -190,6 +220,29 @@ document.querySelectorAll('.lb button').forEach(b=>b.addEventListener('click',()
 renderLB('performanceScore');
 document.querySelectorAll('.kpi .v[data-count]').forEach(countUp);
 document.getElementById('gen').textContent=new Date(D.generatedAt).toISOString().slice(0,10);
+
+// tiktok-style wall (real public handles + public metrics; video area is stylized, not real frames)
+(function(){
+  const hues=[330,300,275,42,190,350,260,20,160,310,290,55,210,340,280,15];
+  const host=document.getElementById('tkwall'); if(!host) return;
+  const prof=h=>'https://www.tiktok.com/@'+h.replace(/#\d+$/,'');
+  [...D.leaderboard].sort((a,b)=>a.rank-b.rank).forEach((r,i)=>{
+    const h1=hues[i%hues.length], h2=(h1+38)%360;
+    const el=document.createElement('div'); el.className='tk';
+    el.innerHTML='<div class="tk-vid" style="--h1:'+h1+';--h2:'+h2+'">'
+      +'<div class="tk-shine"></div>'
+      +'<div class="tk-top"><span class="tk-tag">#beauty</span><span class="tk-ver">\u2713 verified</span></div>'
+      +'<div class="tk-play">\u25B6</div>'
+      +'<div class="tk-rail">'
+        +'<div class="ri"><div class="ic">\u2665</div><div class="rn">'+r.er+'%</div></div>'
+        +'<div class="ri"><div class="ic">\u25B6</div><div class="rn">'+fmt(r.views)+'</div></div>'
+        +'<div class="ri"><div class="ic">\u2605</div><div class="rn">'+r.performanceScore+'</div></div>'
+      +'</div>'
+      +'<div class="tk-bottom"><a class="tk-h" href="'+prof(r.handle)+'" target="_blank" rel="noopener">@'+r.handle+'</a>'
+      +'<div class="tk-cap">우리리우 2차 · beauty/cosmetics</div></div></div>';
+    host.appendChild(el);
+  });
+})();
 </script>
 </body>
 </html>
