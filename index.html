@@ -1,259 +1,140 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dashboard">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Social Seeding v2 — the agent is the operator</title>
-<meta name="description" content="브리프 한 줄이면, 에이전트 플릿이 TikTok 인플루언서 캠페인을 source→vet→outreach→reply→ship→verify→report까지 자율 운영합니다. Google AI Agents Challenge Track-3 제출 · 라이브 실증.">
+<title>Social Seeding v2 — 팀 지식 허브 (ss-reports)</title>
+<meta name="description" content="the agent is the operator — Track-3 submission knowledge hub: pitch, performance, platform audit, roadmap, gap analysis, handoff.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --blue:#1a73e8;--purple:#9334e6;--green:#1e8e3e;--amber:#b8860b;--red:#d93025;
-    --ink:#202124;--muted:#5f6368;--line:#e8eaed;--bg:#f6f7f9;--card:#fff;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
-    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.62;-webkit-font-smoothing:antialiased}
-  .in{max-width:920px;margin:0 auto;padding:0 22px}
-  a{color:var(--blue)}
-  header{background:linear-gradient(135deg,#1a73e8,#9334e6);color:#fff;padding:60px 0 50px}
-  header .kicker{font:700 12px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;opacity:.9}
-  header h1{font-size:clamp(26px,4.4vw,40px);margin:.35em 0 .15em;font-weight:800;letter-spacing:-.02em}
-  header .lead{font-size:clamp(15px,2vw,19px);opacity:.96;max-width:46ch}
-  header .hero-copy{margin-top:18px;font:800 clamp(18px,2.6vw,26px)/1.1 var(--sans);letter-spacing:-.01em}
-  header .hero-copy .y{color:#ffd966}
-  .btns{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;gap:.5em;background:#fff;color:#1a3a6b;text-decoration:none;font-weight:700;font-size:14px;padding:11px 18px;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-  .btn.ghost{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.5)}
-  .btn:hover{transform:translateY(-1px)}
-
-  section{padding:40px 0;border-bottom:1px solid var(--line)}
-  h2.sh{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-  h2.sh + .t{font-size:clamp(20px,3vw,26px);font-weight:800;margin:0 0 18px;letter-spacing:-.01em}
-  p.note{color:var(--muted);font-size:14px}
-
-  /* evidence band */
-  .evidence{background:#fff}
-  .ev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
-  .ev{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:18px}
-  .ev .n{font-size:clamp(22px,3.4vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1}
-  .ev .n.g{color:var(--green)} .ev .n.b{color:var(--blue)} .ev .n.p{color:var(--purple)} .ev .n.a{color:var(--amber)}
-  .ev .l{font-size:12.5px;color:var(--muted);margin-top:7px}
-  .verified{display:inline-flex;align-items:center;gap:.5em;background:#e6f4ea;color:var(--green);font:700 12px/1 var(--mono);padding:7px 12px;border-radius:999px;border:1px solid #b7e1c1;margin-top:16px}
-  .verified .dot{width:.6em;height:.6em;border-radius:50%;background:var(--green)}
-
-  /* explainer */
-  .steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:6px}
-  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
-  .step .num{font:800 13px/1 var(--mono);color:#fff;background:var(--purple);width:26px;height:26px;border-radius:8px;display:grid;place-items:center}
-  .step h3{margin:12px 0 6px;font-size:16px}
-  .step p{margin:0;color:var(--muted);font-size:14px}
-
-  /* loop chips */
-  .loop{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
-  .loop .c{background:#eef3fe;border:1px solid #d2e3fc;color:#1a3a6b;font:700 13px/1 var(--sans);padding:9px 12px;border-radius:10px}
-  .loop .ar{color:var(--muted)}
-  .loop .c.gate{background:#fef7e0;border-color:#feefc3;color:var(--amber)}
-
-  /* arch */
-  .arch{background:#0f1115;border-radius:16px;padding:22px;color:#e7e9ee;margin-top:6px;overflow-x:auto}
-  .arch .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0}
-  .ab{background:#1b1f27;border:1.5px solid #313742;border-radius:10px;padding:9px 13px;text-align:center;min-width:max-content}
-  .ab .t{font:700 13px/1.1 var(--sans)} .ab .s{font:600 10.5px/1.2 var(--mono);color:#8b93a1;margin-top:4px}
-  .ab.gold{border-color:#caa24a}.ab.gold .t{color:#e9c877} .ab.blue{border-color:#5b8bd0}.ab.blue .t{color:#9cc0f5}
-  .ab.violet{border-color:#9a6fd0}.ab.violet .t{color:#c9a8f0} .ab.green{border-color:#4a9d63}.ab.green .t{color:#86d99c}
-  .ab.tier{min-width:160px;border-style:dashed}
-  .ab .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;justify-content:center}
-  .ab .chips span{font:600 10px/1 var(--sans);background:#262b34;border:1px solid #353b46;border-radius:6px;padding:4px 6px}
-  .arrowdn{color:#6b7280;font-size:13px}
-  .a2a{color:#86d99c;font:700 12px/1 var(--mono)}
-  .archlegend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font:600 12px/1.4 var(--mono);color:#8b93a1}
-  .archlegend i{font-style:normal;display:inline-flex;gap:.4em;align-items:center}.archlegend .sw{width:.7em;height:.7em;border-radius:3px;display:inline-block}
-
-  /* honest scope */
-  .scope{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
-  .scope .box{border-radius:14px;padding:18px;border:1px solid var(--line);background:#fff}
-  .scope .box.live{border-left:5px solid var(--green)} .scope .box.stub{border-left:5px solid var(--amber)}
-  .scope h3{margin:0 0 8px;font-size:15px} .scope ul{margin:0;padding-left:18px;color:var(--muted);font-size:13.5px}
-  .scope li{margin:4px 0}
-
-  /* report cards */
-  a.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:14px 0;box-shadow:0 1px 3px rgba(60,64,67,.06);transition:.15s;border-left:5px solid var(--blue)}
-  a.card:hover{box-shadow:0 6px 22px rgba(60,64,67,.14);transform:translateY(-2px)}
-  a.card.p{border-left-color:var(--purple)} a.card.gold{border-left-color:#f5b400}
-  a.card h3{margin:0 0 6px;font-size:18px;color:var(--blue)} a.card.p h3{color:var(--purple)} a.card.gold h3{color:var(--amber)}
-  a.card p{margin:0;color:var(--muted);font-size:14px}
-  a.card .meta{font-size:12.5px;color:var(--muted);margin-top:9px;font-family:var(--mono)}
-
-  .rubric{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
-  .rc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
-  .rc .w{font:800 22px/1 var(--sans);color:var(--blue)} .rc .k{font-size:12.5px;color:var(--muted);margin-top:6px}
-
-  footer{padding:34px 0 60px;color:var(--muted);font-size:13px}
-  footer code{background:#eceef1;padding:1px 5px;border-radius:4px;font-size:12px}
-  @media(max-width:680px){.ev-grid,.steps,.scope,.rubric{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}}
+:root{--bg:#0b1120;--surface:#1e293b;--surface2:#243049;--border:#334155;--text:#f1f5f9;--text2:#94a3b8;--accent:#38bdf8;--ok:#4ade80;--warn:#fbbf24;--err:#f87171;--purple:#c084fc}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:radial-gradient(1200px 600px at 50% -10%,#16233f,var(--bg));color:var(--text);font-family:"Inter",system-ui,sans-serif;line-height:1.6;font-size:15px;min-height:100vh}
+code,.mono{font-family:"JetBrains Mono",monospace;font-size:.85em}
+a{color:var(--accent);text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:44px 24px 90px}
+/* hero */
+.hero{text-align:center;margin-bottom:14px}
+.hero .kick{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.hero h1{font-size:38px;font-weight:900;letter-spacing:-.03em;margin:8px 0 6px;line-height:1.1}
+.hero h1 .g{background:linear-gradient(90deg,#38bdf8,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--text2);font-size:15px;max-width:640px;margin:0 auto}
+.badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 6px}
+.badge{font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.badge.ok{background:rgba(74,222,128,.12);color:var(--ok);border-color:rgba(74,222,128,.32)}
+.badge.dday{background:rgba(248,113,113,.12);color:var(--err);border-color:rgba(248,113,113,.32)}
+.badge.acc{background:rgba(56,189,248,.12);color:var(--accent);border-color:rgba(56,189,248,.32)}
+/* status strip */
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:30px 0}
+.stat{background:linear-gradient(160deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:13px;padding:16px 17px}
+.stat .v{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat .l{font-size:11.5px;color:var(--text2);margin-top:2px;line-height:1.4}
+.stat.ok .v{color:var(--ok)}.stat.acc .v{color:var(--accent)}.stat.pur .v{color:var(--purple)}
+/* section title */
+.sec{margin:38px 0 14px;display:flex;align-items:baseline;gap:10px}
+.sec h2{font-size:16px;font-weight:700}
+.sec .hint{font-size:12.5px;color:var(--text2)}
+/* doc grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:15px}
+.doc{display:block;background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:20px;transition:.18s;position:relative;overflow:hidden}
+.doc:hover{border-color:var(--accent);transform:translateY(-2px);background:var(--surface2)}
+.doc .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.doc h3{font-size:16.5px;font-weight:700;color:var(--text);line-height:1.3}
+.doc .tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;text-transform:uppercase}
+.tag.live{background:rgba(74,222,128,.15);color:var(--ok)}.tag.new{background:rgba(56,189,248,.15);color:var(--accent)}
+.tag.star{background:rgba(192,132,252,.15);color:var(--purple)}.tag.ref{background:rgba(148,163,184,.16);color:#cbd5e1}
+.doc p{font-size:13px;color:var(--text2);line-height:1.55}
+.doc .meta{font-size:11.5px;color:var(--text2);margin-top:11px;font-family:"JetBrains Mono";opacity:.85}
+.doc .arrow{color:var(--accent);font-weight:700;font-size:14px;margin-top:10px;display:inline-block}
+.doc.feat{grid-column:1/-1;background:linear-gradient(135deg,#1c2942,#26203f);border-color:rgba(192,132,252,.35)}
+/* live chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:7px 12px;color:var(--text2)}
+.chip b{color:var(--ok)}
+.foot{margin-top:46px;padding-top:20px;border-top:1px solid var(--border);color:var(--text2);font-size:12.5px;text-align:center;line-height:1.7}
+.foot code{color:#cbd5e1}
+@media(max-width:560px){.hero h1{font-size:30px}.wrap{padding:30px 16px 70px}}
 </style>
 </head>
 <body>
+<div class="wrap">
+<div class="hero">
+<div class="kick">Google AI Agents Challenge · Track-3 · 팀 지식 허브</div>
+<h1>Social Seeding v2 — <span class="g">the agent is the operator</span></h1>
+<p>한 줄 브리프를 주면, 22-에이전트 ADK 플릿이 소싱→검증→아웃리치→검증→리포트를 자율 운영합니다. 인간은 켜둔 정책 게이트에서만 개입합니다.</p>
+<div class="badges">
+<span class="badge dday">D-2 · 마감 2026-06-05 17:00 PT</span>
+<span class="badge ok">open PR 0 · 게이트 green</span>
+<span class="badge acc">플랫폼 적합-가중 채택 82%</span>
+<span class="badge">Gemini 3.5/3.1 only (D53) · Vertex global</span>
+</div>
+</div>
 
-<header>
-  <div class="in">
-    <div class="kicker">Google AI Agents Challenge · Track 3</div>
-    <h1>Social Seeding — the agent is the operator</h1>
-    <p class="lead">사람이 브리프 한 줄을 주면, 에이전트 플릿이 TikTok 인플루언서 캠페인을 <b>발굴 → 검증 → 아웃리치 → 응대 → 발송 → 검수 → 성과</b>까지 스스로 운영합니다. 사람은 자기가 켜둔 정책 게이트에서만 개입합니다.</p>
-    <div class="hero-copy">“The brief is <span class="y">all you need.</span>”</div>
-    <div class="btns">
-      <a class="btn" href="track3-pitch.html">▶ 피치 덱 (시네마틱, 녹화용)</a>
-      <a class="btn ghost" href="https://agents.socialseed.ing/" target="_blank" rel="noopener">라이브 Mission Control ↗</a>
-    </div>
-  </div>
-</header>
+<div class="strip">
+<div class="stat ok"><div class="v">16 / 59,498</div><div class="l">우리리우 2차 — 검증 크리에이터 / 조회수 (7.93% ER)</div></div>
+<div class="stat acc"><div class="v">GT1–GT6</div><div class="l">Trace·Memory recall·Eval·RAG·Optimizer·AP2 전부 LIVE</div></div>
+<div class="stat ok"><div class="v">6 신규</div><div class="l">적극 적용: Sessions·Registry·DLP·Simulation·thinking·fleet-recall</div></div>
+<div class="stat pur"><div class="v">82%</div><div class="l">적합-가중 채택 — Build 80 / Scale 83 / Govern 64 / Optimize 100</div></div>
+</div>
 
-<section class="evidence">
-  <div class="in">
-    <h2 class="sh">라이브 실증 · Verified</h2>
-    <div class="t">한 번의 실제 캠페인 “우리리우 2차” — 에이전트가 6단계를 자율 완주</div>
-    <div class="ev-grid">
-      <div class="ev"><div class="n g">16</div><div class="l">검증된 크리에이터 (verified)</div></div>
-      <div class="ev"><div class="n b">59,498</div><div class="l">전달된 조회수 (views)</div></div>
-      <div class="ev"><div class="n a">7.93%</div><div class="l">가중 인게이지먼트율 (ER)</div></div>
-      <div class="ev"><div class="n p">6 / 6</div><div class="l">자율 완료 단계 (stages)</div></div>
-      <div class="ev"><div class="n">37</div><div class="l">기록된 트랙 (tracks)</div></div>
-      <div class="ev"><div class="n">7</div><div class="l">정책 게이트 종류 (gates)</div></div>
-      <div class="ev"><div class="n">4,718</div><div class="l">총 인게이지먼트</div></div>
-      <div class="ev"><div class="n g">$0.00</div><div class="l">사람 운영 비용 (operator spend)</div></div>
-    </div>
-    <span class="verified"><span class="dot"></span>실측: combba가 judge-demo 세션으로 라이브 Mission Control에서 직접 확인 · 2026-06-02 · 모든 URL 200 OK</span>
-    <p class="note" style="margin-top:14px">데이터는 공개 TikTok 크리에이터 랭킹 + 합성 브랜드 브리프(픽스처) 기반이며 <b>PII가 아닙니다</b>. 1-클릭 심사 데모는 <b>읽기 전용</b>(모든 변경 라우트 403)이라 안전하게 둘러볼 수 있습니다.</p>
-  </div>
-</section>
+<div class="sec"><h2>🟢 지금 라이브 (실증됨)</h2><span class="hint">심사관이 바로 확인 가능</span></div>
+<div class="chips">
+<span class="chip"><b>●</b> agents.socialseed.ing — 1-클릭 심사 데모 로그인 (만료 7/31)</span>
+<span class="chip"><b>●</b> ss-mcp-server — A2A v0.3 서명 카드 + 라이브 creator search</span>
+<span class="chip"><b>●</b> Cloud Workflow exec — 코디네이터→A2A→5 ranked creators</span>
+<span class="chip"><b>●</b> reasoningEngines ×3 + RAG corpus + Memory Bank (ss-v2-prod)</span>
+<span class="chip"><b>●</b> Cloud DLP 컴플라이언스 게이트 · 멀티턴 Sessions · thinking budget</span>
+</div>
 
-<section>
-  <div class="in">
-    <h2 class="sh">이게 뭔가요 · 한눈에</h2>
-    <div class="t">“챗봇”이 아니라, 캠페인을 직접 운영하는 에이전트입니다</div>
-    <div class="steps">
-      <div class="step"><div class="num">1</div><h3>문제</h3><p>인플루언서 캠페인은 크리에이터 발굴부터 성과 보고까지 사람이 매번 전 과정을 손으로 운영해야 합니다.</p></div>
-      <div class="step"><div class="num">2</div><h3>해법</h3><p>22개 전문 에이전트로 된 플릿이 그 루프를 대신 운영합니다. 브리프 한 줄이 입력의 전부입니다.</p></div>
-      <div class="step"><div class="num">3</div><h3>통제</h3><p>아웃리치 발송·예산 같은 외부 행동은 전부 <b>정책 게이트</b>에서 멈춥니다. 사람이 열어줄 때만 진행됩니다.</p></div>
-    </div>
-    <div class="loop">
-      <span class="c">발굴 source</span><span class="ar">→</span>
-      <span class="c">검증 vet</span><span class="ar">→</span>
-      <span class="c">아웃리치 outreach</span><span class="ar">→</span>
-      <span class="c">응대 reply</span><span class="ar">→</span>
-      <span class="c">발송 ship</span><span class="ar">→</span>
-      <span class="c">검수 verify</span><span class="ar">→</span>
-      <span class="c">성과 report</span>
-      <span class="ar">·</span><span class="c gate">⏸ 정책 게이트 7종</span>
-    </div>
-  </div>
-</section>
+<div class="sec"><h2>📚 문서 · 한눈에</h2><span class="hint">필요한 모든 자료 — 클릭하면 열림</span></div>
+<div class="grid">
 
-<section>
-  <div class="in">
-    <h2 class="sh">어떻게 동작하나 · 아키텍처 (Google Cloud에 배포됨)</h2>
-    <div class="t">Cloud Workflow → 코디네이터 → 22-에이전트 ADK 플릿 → A2A → OSS MCP 서버</div>
-    <div class="arch">
-      <div class="row">
-        <div class="ab gold"><div class="t">사람</div><div class="s">한 줄 브리프</div></div>
-        <span class="arrowdn">→</span>
-        <div class="ab blue"><div class="t">Cloud Workflow</div><div class="s">brand-campaign · 배포됨</div></div>
-        <span class="arrowdn">→</span>
-        <div class="ab gold"><div class="t">coordinator</div><div class="s">gemini-3.5-flash · 1→N</div></div>
-      </div>
-      <div class="arrowdn" style="text-align:center">▼ dispatch</div>
-      <div class="row">
-        <div class="ab tier violet"><div class="t">Tier 1 · 16 워커</div><div class="chips"><span>sourcing</span><span>vetting</span><span>outreach</span><span>reply</span><span>logistics</span><span>content_verify</span><span>analyst</span><span>research</span><span>compliance</span><span>creative</span><span>+6</span></div></div>
-        <div class="ab tier gold"><div class="t">Tier 2 · 3</div><div class="chips"><span>coordinator</span><span>critic</span><span>optimizer</span></div></div>
-        <div class="ab tier blue"><div class="t">Tier 3 · 워처 3</div><div class="chips"><span>anomaly</span><span>cost</span><span>security</span></div></div>
-      </div>
-      <div class="row">
-        <div class="ab"><div class="t">capability layer</div><div class="s">유일한 I/O 경계</div></div>
-        <div class="ab gold"><div class="t">policy gates</div><div class="s">7종 · 모든 외부 발송</div></div>
-        <div class="ab"><div class="t">cost ledger</div><div class="s">실행별 추적</div></div>
-        <span class="a2a">— A2A v0.3 · message:send →</span>
-        <div class="ab green"><div class="t">tiktok-mcp-server</div><div class="s">OSS · 발굴 + 에셋</div></div>
-      </div>
-      <div class="archlegend">
-        <i><span class="sw" style="background:#e9c877"></span>gemini-3.5-flash · 판단</i>
-        <i><span class="sw" style="background:#9cc0f5"></span>gemini-3.1-flash-lite · 대량</i>
-        <i><span class="sw" style="background:#86d99c"></span>A2A v0.3 · MCP</i>
-        <i><span class="sw" style="background:#c9a8f0"></span>Vertex AI · global 엔드포인트</i>
-      </div>
-    </div>
-    <p class="note" style="margin-top:12px">모델은 <b>Gemini 3.5-flash + 3.1-flash-lite만</b> 사용합니다(결정 D53). Gemini 2.5·Claude·*-pro는 제품 어디에도 없습니다 — 이 페이지와 피치 덱 모두 실측으로 0건 확인.</p>
-  </div>
-</section>
+<a class="doc feat" href="track3-pitch.html">
+<div class="top"><h3>★ Track-3 피치 덱 (시네마틱)</h3><span class="tag star">녹화용</span></div>
+<p>제출/녹화용 PitchForge 시네마틱 덱 — "에이전트가 운영자다" 6-비트 서사, 아키텍처, 가격·데이터 해자. 키보드 ←/→ 이동, F 전체화면.</p>
+<span class="arrow">덱 열기 →</span>
+</a>
 
-<section>
-  <div class="in">
-    <h2 class="sh">정직한 범위 · Honest scope</h2>
-    <div class="t">무엇이 진짜 라이브이고, 무엇이 아직 스텁/예정인지 숨기지 않습니다</div>
-    <div class="scope">
-      <div class="box live"><h3>✅ 지금 라이브 (실증됨)</h3><ul>
-        <li>운영자 web (agents.socialseed.ing) — 실 Google OAuth 로그인 + 1-클릭 심사 데모</li>
-        <li>우리리우 캠페인 6단계 자율 완주 + 성과분석 자동 집계</li>
-        <li>코디네이터 → OSS tiktok-mcp-server를 A2A v0.3로 호출(라이브 Cloud Workflow)</li>
-        <li>정책 게이트 7종 + 실행별 비용 원장</li>
-      </ul></div>
-      <div class="box stub"><h3>⚠️ 스텁 / 예정 (정직 공개)</h3><ul>
-        <li>다수 ADK 도구는 stub→live 시seam(<code>CAPABILITY_LAYER_MODE</code>) — 기본 stub, live는 단계 배포</li>
-        <li>Cloud Marketplace 등재 = 한국 결제권역 제외(D2)로 PENDING → A2A-only 배포로 우회(D3)</li>
-        <li>1-클릭 심사 데모는 읽기 전용 우회 로그인(시간제한·킬스위치)</li>
-      </ul></div>
-    </div>
-    <p class="note" style="margin-top:12px">제출의 단일 진실원본은 저장소의 <code>HONEST-SCOPE.md</code>입니다. 라이브로 도는 것만 라이브라고 말합니다.</p>
-  </div>
-</section>
+<a class="doc" href="platform-audit.html">
+<div class="top"><h3>② Gemini Enterprise 플랫폼 적합성 감사</h3><span class="tag new">최신·갱신</span></div>
+<p>33개 플랫폼 기능 전수 분석(기능별 전문가) → Scale/Govern/Optimize <b>적극 적용 82%</b> → 미사용 정당성 재분류(강한 skip 7 / 약한 skip 3 / Compliance 정정).</p>
+<div class="meta">35 agents · before 68% → after 82%</div>
+<span class="arrow">감사 열기 →</span>
+</a>
 
-<section>
-  <div class="in">
-    <h2 class="sh">심사 기준 · Rubric (공식)</h2>
-    <div class="t">제출이 어떻게 매핑되는가</div>
-    <div class="rubric">
-      <div class="rc"><div class="w">30%</div><div class="k">Technical<br>배포된 ADK·A2A·Cloud Workflow</div></div>
-      <div class="rc"><div class="w">30%</div><div class="k">Business<br>가격 + 데이터 해자</div></div>
-      <div class="rc"><div class="w">20%</div><div class="k">Innovation<br>the agent is the operator</div></div>
-      <div class="rc"><div class="w">20%</div><div class="k">Demo<br>아키텍처 도표 + ADK 설명</div></div>
-    </div>
-    <p class="note" style="margin-top:14px"><b>가격(비즈니스 모델):</b> 캠페인별 첫 10,000 view 무료 → 이후 view당 $0.01. 모든 캠페인이 <b>데이터 해자</b>(크리에이터-성과 그래프 + 아웃리치 이력)를 키워 락인과 플라이휠을 만듭니다. <b>마감: 2026-06-05 17:00 PT.</b></p>
-  </div>
-</section>
+<a class="doc" href="wooriliu-performance.html">
+<div class="top"><h3>① 우리리우 2차 — 성과 리포트</h3><span class="tag live">실증</span></div>
+<p>v2 자율 루프로 완료한 실제 캠페인 — 16 검증 크리에이터 / 59,498 조회 / 7.93% 인게이지먼트. 실제 핸들·TikTok 스타일 카드.</p>
+<div class="meta">실제 캠페인 데이터 · 비-PII</div>
+<span class="arrow">성과 열기 →</span>
+</a>
 
-<section style="background:#fff">
-  <div class="in">
-    <h2 class="sh">리포트 · 더 깊이</h2>
-    <div class="t">각 문서는 실제 코드 감사·라이브 캡처에 근거합니다</div>
-    <a class="card gold" href="track3-pitch.html">
-      <h3>★ Track-3 피치 덱 (시네마틱, 녹화용) →</h3>
-      <p>10슬라이드 · ~106초. 실제 작동화면(6단계 타임라인 · 7종 게이트 · 성과분석)을 임베드하고, 22-에이전트 ADK 아키텍처와 라이브 수치·확장성·가격을 보여줍니다. 키: <code>O</code> 오프닝 녹화 · <code>F</code> 전체 · <code>R</code> 프레임 · <code>P</code> 리플레이.</p>
-      <p class="meta">자체완결 단일 HTML · Gemini 3.5/3.1 only · 영어</p>
-    </a>
-    <a class="card p" href="wooriliu-performance.html">
-      <h3>① 우리리우 2차 — 성과 리포트 (v2 자율 완료) →</h3>
-      <p>원본이 <code>performanceAnalysis</code>에서 멈춰 reach·engagement가 0이던 캠페인을, v2 에이전트 플릿이 6단계 자율 완주 → 성과분석 자동 집계. 검증 16건 · 조회 59,498 · 가중 ER 7.93%. 사람은 발송·콘텐츠·예산 게이트만 개입.</p>
-      <p class="meta">집계값만 · PII 비노출</p>
-    </a>
-    <a class="card" href="gap-analysis.html">
-      <h3>② 시스템 갭 분석 →</h3>
-      <p>“우리리우 2차” 완주 사례를 기준선으로, v2 에이전트 시스템이 6단계를 어디까지 자율화했고 최소 HITL을 위해 무엇이 빠졌는지 코드 감사로 분석.</p>
-      <p class="meta">조립 갭 · HITL 배치 갭 · 라이브 갭</p>
-    </a>
-    <a class="card" href="handoff-briefing.html">
-      <h3>③ 인수인계 차이 브리핑 →</h3>
-      <p>서비스 소개 · 접속 방법 · 인수 이후 변화 · 해커톤 Track-3 6대 요건 · 현재 상태 · 남은 작업.</p>
-      <p class="meta">git diff · prod read-only · 핸드오프 근거</p>
-    </a>
-  </div>
-</section>
+<a class="doc" href="native-roadmap.html">
+<div class="top"><h3>③ 무제약 네이티브 로드맵</h3><span class="tag ref">계획</span></div>
+<p>"가능한 모든 것을 Gemini Enterprise 네이티브로" — Phase A(자율)/B(운영자)/C(Google-gated) 트랙 분리, 각 항목 공식문서·해제조건.</p>
+<span class="arrow">로드맵 열기 →</span>
+</a>
 
-<footer>
-  <div class="in">
-    <p><b>Social Seeding v2</b> · 에이전트 오케스트레이션 TikTok 인플루언서-캠페인 운영 시스템 · 공유용 공개 보고서(프로젝트 소스는 비공개 유지).</p>
-    <p>근거: 라이브 URL 200 실측 · judge-demo Mission Control 직접 확인 · 코드 감사 · HONEST-SCOPE · 핸드오프. 최신화 2026-06-02 · GitHub Pages.</p>
-  </div>
-</footer>
+<a class="doc" href="gap-analysis.html">
+<div class="top"><h3>④ 시스템 갭 분석</h3><span class="tag ref">분석</span></div>
+<p>제출 대비 시스템 갭 — 무엇이 라이브/스텁/게이트인지, 정직한 범위 경계.</p>
+<span class="arrow">갭 분석 열기 →</span>
+</a>
 
+<a class="doc" href="handoff-briefing.html">
+<div class="top"><h3>⑤ 인수 브리핑</h3><span class="tag ref">인수</span></div>
+<p>세션 인계 — 현재 상태, 결정 사항, 운영자 잔여 액션(영상·Devpost 제출).</p>
+<span class="arrow">브리핑 열기 →</span>
+</a>
+
+</div>
+
+<div class="foot">
+<b>아키텍처</b> · brand-campaign Cloud Workflow → coordinator (<code>gemini-3.5-flash</code>, Vertex <code>global</code>) → 22-agent ADK fleet → A2A v0.3 <code>message:send</code> → OSS <code>tiktok-mcp-server</code><br>
+<b>정직 디스클로저</b>: 모든 "LIVE"는 session/engine/corpus/trace ID로 실증 · 관리형·Google-gated 갭은 공개(위조 없음) · 모델은 Gemini 3.5/3.1만(D53)<br>
+<span style="opacity:.7">갱신 2026-06-03 · ss-reports 팀 지식 허브 · Generated with Claude Code</span>
+</div>
+</div>
 </body>
 </html>
